@@ -1,0 +1,9 @@
+pydantic==1.10.11
+openai
+requests
+beautifulsoup4
+newsapi-python
+# log10-io
+
+log10-io@git+https://github.com/log10-io/log10@nqn/split-package
+
