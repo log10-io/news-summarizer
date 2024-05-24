@@ -169,7 +169,7 @@ const Post = ({ post, autofeedback }: any) => {
             </a>
           </h3>
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
-          {feedback && <Comment feedback={feedback} />}
+          {(autofeedback && feedback) && <Comment feedback={feedback} />}
           {(autofeedback && !feedback) && (
             <div
               role="status"
