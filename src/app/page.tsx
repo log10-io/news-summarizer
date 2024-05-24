@@ -281,6 +281,8 @@ export default function Example() {
                   checked={autofeedback}
                   onChange={(e) => {
                     setAutofeedback(e);
+                    setPosts([]);
+                    fetchNews(true);
                   }}
                 />
               </div>
