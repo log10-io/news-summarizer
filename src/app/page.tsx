@@ -10,13 +10,23 @@ function classNames(...classes: any[]) {
   return classes.filter(Boolean).join(" ");
 }
 
-function Comment({ feedback }: any) {
+function Comment({ feedback, completion_id }: any) {
   return (
     <form action="#" className="relative">
       <div className="mt-4 w-full overflow-hidden rounded-lg border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
+        <div className="flex">
+          <div>
         <p className="pt-2 pl-3 text-xs text-gray-400 font-bold">
           AutoFeedback
         </p>
+        </div>
+        <div className="flex-1"></div>
+        <div className="mr-2">
+          <a target="_blank" href={`https://log10.io/app/news-summarizer-demo/completions?id=${completion_id}&wide=false`} className="text-xs text-gray-400 font-bold">
+            See log
+          </a>
+        </div>
+        </div>
         <label htmlFor="description" className="sr-only">
           Description
         </label>
@@ -169,7 +179,7 @@ const Post = ({ post, autofeedback }: any) => {
             </a>
           </h3>
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
-          {(autofeedback && feedback) && <Comment feedback={feedback} />}
+          {(autofeedback && feedback) && <Comment feedback={feedback} completion_id={post?.completion_id} />}
           {(autofeedback && !feedback) && (
             <div
               role="status"
