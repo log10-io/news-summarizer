@@ -85,6 +85,8 @@ def summarize_article(content, autofeedback):
         tags.append("log10/summary-grading")
     client = OpenAI()
 
+    print("Using tags: ", tags)
+
     with log10_session(tags=tags) as session:
         response = client.chat.completions.create(
             model="gpt-4o",

@@ -21,7 +21,15 @@ function Comment({ feedback, completion_id }: any) {
             </p>
           </div>
           <div className="flex-1"></div>
-          <div className="mr-2"></div>
+          <div className="mr-2">
+            <a
+              target="_blank"
+              href={`https://log10.io/app/news-summarizer-demo/feedback/feedback?completion_id=${completion_id}&task_id=610c8e40-e2a8-4b9e-9653-a50af719a6d7&wide=false`}
+              className="text-xs text-gray-400 font-bold"
+            >
+              See autofeedback
+            </a>
+          </div>
         </div>
         <label htmlFor="description" className="sr-only">
           Description
@@ -141,6 +149,8 @@ const Post = ({ post, autofeedback }: any) => {
       }, 1000);
     }
   }, [post.completion_id, autofeedback]);
+
+  console.log(feedback);
 
   return (
     <article
