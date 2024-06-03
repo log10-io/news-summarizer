@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Switch, Text, Button } from "@tremor/react";
 import { RiRestartFill, RiRestartLine } from "@remixicon/react";
 
@@ -16,16 +16,12 @@ function Comment({ feedback, completion_id }: any) {
       <div className="mt-4 w-full overflow-hidden rounded-lg border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
         <div className="flex">
           <div>
-        <p className="pt-2 pl-3 text-xs text-gray-400 font-bold">
-          AutoFeedback
-        </p>
-        </div>
-        <div className="flex-1"></div>
-        <div className="mr-2">
-          <a target="_blank" href={`https://log10.io/app/news-summarizer-demo/completions?id=${completion_id}&wide=false`} className="text-xs text-gray-400 font-bold">
-            See log
-          </a>
-        </div>
+            <p className="pt-2 pl-3 text-xs text-gray-400 font-bold">
+              AutoFeedback
+            </p>
+          </div>
+          <div className="flex-1"></div>
+          <div className="mr-2"></div>
         </div>
         <label htmlFor="description" className="sr-only">
           Description
@@ -124,7 +120,7 @@ const Post = ({ post, autofeedback }: any) => {
 
   // If not found, try again in 1 second.
   useEffect(() => {
-    if (post.completion_id) {
+    if (post.completion_id && autofeedback) {
       const interval = setInterval(() => {
         fetch(
           `https://log10-io--news-summarizer-fastapi-app.modal.run/autofeedback?completion_id=${post.completion_id}`
@@ -133,18 +129,18 @@ const Post = ({ post, autofeedback }: any) => {
           .then((data) => {
             if (data) {
               const f = data.data.organization?.completion?.autoFeedback;
-              console.log("Feedback", f, "data", data);
-
               if (f) {
                 setFeedback(f);
                 console.log("Feedback found, clearing interval");
                 clearInterval(interval);
+              } else {
+                console.log(`Feedback not found for ${post.completion_id}`);
               }
             }
           });
       }, 1000);
     }
-  }, [post.completion_id]);
+  }, [post.completion_id, autofeedback]);
 
   return (
     <article
@@ -173,14 +169,22 @@ const Post = ({ post, autofeedback }: any) => {
         </div>
         <div className="group relative">
           <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-            <a href={post.url}>
-              <span className="absolute inset-0" />
-              {post.title}
-            </a>
+            <a href={post.url}>{post.title}</a>
           </h3>
+          {post?.completion_id && (
+            <a
+              target="_blank"
+              href={`https://log10.io/app/news-summarizer-demo/completions?id=${post?.completion_id}&wide=false`}
+              className="mt-4 text-xs text-gray-400 font-bold"
+            >
+              See log
+            </a>
+          )}
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
-          {(autofeedback && feedback) && <Comment feedback={feedback} completion_id={post?.completion_id} />}
-          {(autofeedback && !feedback) && (
+          {autofeedback && feedback && (
+            <Comment feedback={feedback} completion_id={post?.completion_id} />
+          )}
+          {autofeedback && !feedback && (
             <div
               role="status"
               className="flex flex-col justify-center items-center mt-4"
@@ -232,35 +236,34 @@ const Post = ({ post, autofeedback }: any) => {
 export default function Example() {
   const [posts, setPosts] = useState<any>([]);
   const [autofeedback, setAutofeedback] = useState(false);
+  const abort = useRef(new AbortController());
 
-  const fetchNews = useCallback(
-    async (reset: boolean) => {
-      // Download 10 articles
+  const fetchNews = useCallback(async () => {
+    abort.current = new AbortController();
 
-      for (let i = 0; i < 10; i++) {
-        fetch(
-          `https://log10-io--news-summarizer-fastapi-app.modal.run/news?autofeedback=${autofeedback}&reset_cache=${reset}&start=${i}&end=${
-            i + 1
-          }`
-        )
-          .then((response) => response.json())
-          .then((data) => data)
-          .then((data) => {
-            setPosts((posts: any) => [
-              ...posts,
-              ...data.filter(
-                (item: any) =>
-                  posts.findIndex((post: any) => post.url === item.url) === -1
-              ),
-            ]);
-          });
-      }
-    },
-    [autofeedback]
-  );
+    for (let i = 0; i < 10; i++) {
+      fetch(
+        `https://log10-io--news-summarizer-fastapi-app.modal.run/news?autofeedback=${autofeedback}&reset_cache=true&start=${i}&end=${
+          i + 1
+        }`,
+        { signal: abort.current.signal }
+      )
+        .then((response) => response.json())
+        .then((data) => data)
+        .then((data) => {
+          setPosts((posts: any) => [
+            ...posts,
+            ...data.filter(
+              (item: any) =>
+                posts.findIndex((post: any) => post.url === item.url) === -1
+            ),
+          ]);
+        });
+    }
+  }, [autofeedback]);
 
   useEffect(() => {
-    fetchNews(false);
+    fetchNews();
   }, [fetchNews]);
 
   return (
@@ -280,7 +283,7 @@ export default function Example() {
                 icon={RiRestartLine}
                 onClick={() => {
                   setPosts([]);
-                  fetchNews(true);
+                  fetchNews();
                 }}
               >
                 Refresh
@@ -292,7 +295,8 @@ export default function Example() {
                   onChange={(e) => {
                     setAutofeedback(e);
                     setPosts([]);
-                    fetchNews(true);
+                    abort.current.abort("Previous fetch aborted");
+                    fetchNews();
                   }}
                 />
               </div>

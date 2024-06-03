@@ -27,15 +27,13 @@ newsapi = NewsApiClient(api_key="cc2f2407c4184ff8a9ac99ffc90f435b")
 
 import requests
 
-def fetch_autofeedback(id):
-    api_token = os.getenv('LOG10_TOKEN')
-    org_id = os.getenv('LOG10_ORG_ID')
 
-    url = 'https://graphql.log10.io/graphql'
-    headers = {
-        'content-type': 'application/json',
-        'x-api-token': api_token
-    }
+def fetch_autofeedback(id):
+    api_token = os.getenv("LOG10_TOKEN")
+    org_id = os.getenv("LOG10_ORG_ID")
+
+    url = "https://graphql.log10.io/graphql"
+    headers = {"content-type": "application/json", "x-api-token": api_token}
     query = """
     query OrganizationCompletion($orgId: String!, $id: String!) {
         organization(id: $orgId) {
@@ -51,21 +49,16 @@ def fetch_autofeedback(id):
         }
     }
     """
-    variables = {
-        'orgId': org_id,
-        'id': id
-    }
-    payload = {
-        'query': query,
-        'variables': variables
-    }
-    
+    variables = {"orgId": org_id, "id": id}
+    payload = {"query": query, "variables": variables}
+
     response = requests.post(url, headers=headers, json=payload)
-    
+
     if response.status_code == 200:
         return response.json()
     else:
         response.raise_for_status()
+
 
 def scrape_article(url):
     response = requests.get(url)
@@ -141,6 +134,7 @@ web_app.add_middleware(
     allow_headers=["*"],  # You can specify specific headers instead of ["*"]
 )
 
+
 @app.function(secrets=[modal.Secret.from_name("news-secrets")], image=image)
 @asgi_app()
 def fastapi_app():
@@ -151,34 +145,21 @@ def fastapi_app():
 async def autofeedback(completion_id=None):
     if not completion_id:
         return {"error": "Please provide a completion ID."}
-    
+
     return fetch_autofeedback(completion_id)
 
 
 @web_app.get("/news")
-async def news(reset_cache: bool = False, autofeedback: bool = False, start=0, end=10):
-    if reset_cache:
-        article_cache.clear()
-
+async def news(autofeedback: bool = False, start=0, end=10):
     articles = fetch_news()
     news_with_summaries = []
 
-    articles = articles[int(start):int(end)]
+    articles = articles[int(start) : int(end)]
 
     for article in articles:
-        if article["url"] in article_cache:
-            summary = article_cache[article["url"]].get("summary")
-            content = article_cache[article["url"]].get("content")
-            completion_id = article_cache[article["url"]].get("completion_id")
-        else:
-            content = scrape_article(article["url"])
-            if content:
-                completion_id, summary = summarize_article(content, autofeedback)
-                article_cache[article["url"]] = {
-                    "summary": summary,
-                    "content": content,
-                    "completion_id": completion_id,
-                }
+        content = scrape_article(article["url"])
+        if content:
+            completion_id, summary = summarize_article(content, autofeedback)
 
         news_with_summaries.append(
             {

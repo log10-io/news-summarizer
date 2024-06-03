@@ -5,5 +5,5 @@ beautifulsoup4
 newsapi-python
 # log10-io
 
-log10-io@git+https://github.com/log10-io/log10@nqn/split-package
+log10-io@git+https://github.com/log10-io/log10@kt/check-repsonse-make-to-log10
 
