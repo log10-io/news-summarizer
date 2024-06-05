@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Switch, Text, Button } from "@tremor/react";
 import { RiRestartFill, RiRestartLine } from "@remixicon/react";
+import { useInterval } from "usehooks-ts";
 
 // TODO: Make it easy to report summary quality.
 
@@ -126,36 +127,32 @@ const Post = ({ post, autofeedback }: any) => {
 
   const [feedback, setFeedback] = useState<any>();
 
-  // If not found, try again in 1 second.
-  useEffect(() => {
-    if (post.completion_id && autofeedback) {
-      const interval = setInterval(() => {
-        fetch(
-          `https://log10-io--news-summarizer-fastapi-app.modal.run/autofeedback?completion_id=${post.completion_id}`
-        )
-          .then((response) => response.json())
-          .then((data) => {
-            if (data) {
-              const f = data.data.organization?.completion?.autoFeedback;
-              if (f) {
-                setFeedback(f);
-                console.log("Feedback found, clearing interval");
-                clearInterval(interval);
-              } else {
-                console.log(`Feedback not found for ${post.completion_id}`);
-              }
+  useInterval(
+    () => {
+      fetch(
+        `https://log10-io--news-summarizer-fastapi-app.modal.run/autofeedback?completion_id=${post.completion_id}`
+      )
+        .then((response) => response.json())
+        .then((data) => {
+          if (data) {
+            const f = data.data.organization?.completion?.autoFeedback;
+            if (f) {
+              setFeedback(f);
+              console.log("Feedback found, clearing interval");
+            } else {
+              console.log(`Feedback not found for ${post.completion_id}`);
             }
-          });
-      }, 1000);
-    }
-  }, [post.completion_id, autofeedback]);
-
-  console.log(feedback);
+          }
+        });
+    },
+    !feedback && autofeedback && post.completion_id ? 1000 : null
+  );
 
   return (
     <article
       key={post.url}
       className="relative isolate flex flex-col gap-8 lg:flex-row"
+      id={`post-${post.completion_id}`}
     >
       <div className="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
         <img
@@ -248,14 +245,20 @@ export default function Example() {
   const [autofeedback, setAutofeedback] = useState(false);
   const abort = useRef(new AbortController());
 
-  const fetchNews = useCallback(async () => {
+  const fetchNews = useCallback(async (useAutofeedback: boolean) => {
+    setPosts([]);
+
+    if (abort.current) {
+      abort.current.abort("Previous fetch aborted");
+    }
+
     abort.current = new AbortController();
 
     for (let i = 0; i < 10; i++) {
       fetch(
-        `https://log10-io--news-summarizer-fastapi-app.modal.run/news?autofeedback=${autofeedback}&reset_cache=true&start=${i}&end=${
-          i + 1
-        }`,
+        `https://log10-io--news-summarizer-fastapi-app.modal.run/news?autofeedback=${
+          useAutofeedback || false
+        }&reset_cache=true&start=${i}&end=${i + 1}`,
         { signal: abort.current.signal }
       )
         .then((response) => response.json())
@@ -270,11 +273,11 @@ export default function Example() {
           ]);
         });
     }
-  }, [autofeedback]);
+  }, []);
 
   useEffect(() => {
-    fetchNews();
-  }, [fetchNews]);
+    fetchNews(autofeedback);
+  }, [fetchNews, autofeedback]);
 
   return (
     <div className="bg-white py-24 sm:py-32">
@@ -292,8 +295,7 @@ export default function Example() {
               <Button
                 icon={RiRestartLine}
                 onClick={() => {
-                  setPosts([]);
-                  fetchNews();
+                  fetchNews(autofeedback);
                 }}
               >
                 Refresh
@@ -304,9 +306,6 @@ export default function Example() {
                   checked={autofeedback}
                   onChange={(e) => {
                     setAutofeedback(e);
-                    setPosts([]);
-                    abort.current.abort("Previous fetch aborted");
-                    fetchNews();
                   }}
                 />
               </div>
