@@ -71,18 +71,22 @@ def scrape_article(url):
     return article_content
 
 
-def fetch_news():
+def fetch_news(sources):
     # Fetch top headlines from CNN
-    top_headlines = newsapi.get_top_headlines(sources="cnn")
+    top_headlines = newsapi.get_top_headlines(sources=sources)
     articles = top_headlines["articles"]
     return articles
 
 
-def summarize_article(content, autofeedback):
+def summarize_article(content, autofeedback, sources):
     # Initialize the OpenAI client
     tags = ["news"]
     if autofeedback:
         tags.append("log10/summary-grading")
+
+    if sources:
+        tags.append(f"source/{sources}")
+
     client = OpenAI()
 
     print("Using tags: ", tags)
@@ -152,8 +156,8 @@ async def autofeedback(completion_id=None):
 
 
 @web_app.get("/news")
-async def news(autofeedback: bool = False, start=0, end=10):
-    articles = fetch_news()
+async def news(autofeedback: bool = False, sources="cnn", start=0, end=10):
+    articles = fetch_news(sources)
     news_with_summaries = []
 
     articles = articles[int(start) : int(end)]
@@ -161,7 +165,7 @@ async def news(autofeedback: bool = False, start=0, end=10):
     for article in articles:
         content = scrape_article(article["url"])
         if content:
-            completion_id, summary = summarize_article(content, autofeedback)
+            completion_id, summary = summarize_article(content, autofeedback, sources)
 
         news_with_summaries.append(
             {

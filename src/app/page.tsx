@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Switch, Text, Button } from "@tremor/react";
+import { Switch, Text, Button, Select, SelectItem } from "@tremor/react";
 import { RiRestartFill, RiRestartLine } from "@remixicon/react";
 import { useInterval } from "usehooks-ts";
 
@@ -241,43 +241,47 @@ const Post = ({ post, autofeedback }: any) => {
 };
 
 export default function Example() {
+  const [sources, setSources] = useState("cnn");
   const [posts, setPosts] = useState<any>([]);
   const [autofeedback, setAutofeedback] = useState(false);
   const abort = useRef(new AbortController());
 
-  const fetchNews = useCallback(async (useAutofeedback: boolean) => {
-    setPosts([]);
+  const fetchNews = useCallback(
+    async (useAutofeedback: boolean, sources: string) => {
+      setPosts([]);
 
-    if (abort.current) {
-      abort.current.abort("Previous fetch aborted");
-    }
+      if (abort.current) {
+        abort.current.abort("Previous fetch aborted");
+      }
 
-    abort.current = new AbortController();
+      abort.current = new AbortController();
 
-    for (let i = 0; i < 10; i++) {
-      fetch(
-        `https://log10-io--news-summarizer-fastapi-app.modal.run/news?autofeedback=${
-          useAutofeedback || false
-        }&reset_cache=true&start=${i}&end=${i + 1}`,
-        { signal: abort.current.signal }
-      )
-        .then((response) => response.json())
-        .then((data) => data)
-        .then((data) => {
-          setPosts((posts: any) => [
-            ...posts,
-            ...data.filter(
-              (item: any) =>
-                posts.findIndex((post: any) => post.url === item.url) === -1
-            ),
-          ]);
-        });
-    }
-  }, []);
+      for (let i = 0; i < 10; i++) {
+        fetch(
+          `https://log10-io--news-summarizer-fastapi-app.modal.run/news?sources=${sources}&autofeedback=${
+            useAutofeedback || false
+          }&reset_cache=true&start=${i}&end=${i + 1}`,
+          { signal: abort.current.signal }
+        )
+          .then((response) => response.json())
+          .then((data) => data)
+          .then((data) => {
+            setPosts((posts: any) => [
+              ...posts,
+              ...data.filter(
+                (item: any) =>
+                  posts.findIndex((post: any) => post.url === item.url) === -1
+              ),
+            ]);
+          });
+      }
+    },
+    []
+  );
 
   useEffect(() => {
-    fetchNews(autofeedback);
-  }, [fetchNews, autofeedback]);
+    fetchNews(autofeedback, sources);
+  }, [fetchNews, autofeedback, sources]);
 
   return (
     <div className="bg-white py-24 sm:py-32">
@@ -295,7 +299,7 @@ export default function Example() {
               <Button
                 icon={RiRestartLine}
                 onClick={() => {
-                  fetchNews(autofeedback);
+                  fetchNews(autofeedback, sources);
                 }}
               >
                 Refresh
@@ -308,6 +312,22 @@ export default function Example() {
                     setAutofeedback(e);
                   }}
                 />
+              </div>
+              <div>
+                <Select
+                  value={sources}
+                  onValueChange={(e) => {
+                    setSources(e);
+                    setPosts([]);
+                    abort.current.abort("Previous fetch aborted");
+                    fetchNews(autofeedback, sources);
+                  }}
+                >
+                  <SelectItem value="cnn">CNN</SelectItem>
+                  <SelectItem value="business-insider">
+                    Business insider
+                  </SelectItem>
+                </Select>
               </div>
             </div>
           </div>
