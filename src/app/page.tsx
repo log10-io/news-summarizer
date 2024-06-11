@@ -9,7 +9,7 @@ import Link from "next/link";
 const modalEndpoint = process.env.NEXT_PUBLIC_MODAL_ENDPOINT;
 const modalSecret = process.env.NEXT_PUBLIC_MODAL_SECRET;
 
-function Comment({ feedback, completion_id }: any) {
+function Comment({ slug, feedback, completion_id }: any) {
   return (
     <form action="#" className="relative">
       <div className="mt-4 w-full overflow-hidden rounded-lg border border-gray-300 shadow-sm focus-within:border-indigo-500 focus-within:ring-1 focus-within:ring-indigo-500">
@@ -23,7 +23,7 @@ function Comment({ feedback, completion_id }: any) {
           <div className="mr-2">
             <Link
               target="_blank"
-              href={`https://log10.io/app/news-summarizer-demo/feedback/feedback?completion_id=${completion_id}&task_id=610c8e40-e2a8-4b9e-9653-a50af719a6d7&wide=false`}
+              href={`https://log10.io/app/${slug}/feedback/feedback?completion_id=${completion_id}&task_id=${feedback.task.id}&wide=false`}
               className="text-xs text-gray-400 font-bold"
             >
               See autofeedback
@@ -131,7 +131,7 @@ const Post = ({ post, autofeedback }: any) => {
             const f = data.data.organization?.completion?.autoFeedback;
             if (f) {
               setFeedback(f);
-              console.log("Feedback found, clearing interval");
+              console.log("Feedback found, clearing interval", f);
             } else {
               console.log(`Feedback not found for ${post.completion_id}`);
             }
@@ -163,7 +163,7 @@ const Post = ({ post, autofeedback }: any) => {
           {post?.completion_id && (
             <Link
               target="_blank"
-              href={`https://log10.io/app/news-summarizer-demo/completions?id=${post?.completion_id}&wide=false`}
+              href={`https://log10.io/app/${post.slug}/completions?id=${post?.completion_id}&wide=false`}
               className="mt-4 text-xs text-gray-400 font-bold"
             >
               See log
@@ -171,7 +171,11 @@ const Post = ({ post, autofeedback }: any) => {
           )}
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
           {autofeedback && feedback && (
-            <Comment feedback={feedback} completion_id={post?.completion_id} />
+            <Comment
+              slug={post?.slug}
+              feedback={feedback}
+              completion_id={post?.completion_id}
+            />
           )}
           {autofeedback && !feedback && (
             <div
@@ -204,7 +208,7 @@ const Post = ({ post, autofeedback }: any) => {
   );
 };
 
-export default function Example() {
+export default function News() {
   const [sources, setSources] = useState("cnn");
   const [posts, setPosts] = useState<any>([]);
   const [autofeedback, setAutofeedback] = useState(false);

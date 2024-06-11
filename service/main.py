@@ -43,6 +43,7 @@ def fetch_autofeedback(id):
     query = """
     query OrganizationCompletion($orgId: String!, $id: String!) {
         organization(id: $orgId) {
+            slug
             completion(id: $id) {
                 id
                 autoFeedback {
@@ -50,6 +51,10 @@ def fetch_autofeedback(id):
                     status
                     jsonValues
                     comment
+                    task {
+                        id
+                        name
+                    }
                 }
             }
         }
@@ -110,12 +115,14 @@ def summarize_article(content, autofeedback, sources):
 
         url = session.last_completion_url()
         completion_id = None
+        slug = None
         if url:
             completion_id = url.split("/")[-1]
+            slug = url.split("/")[-3]
 
     # Get the completion id.
 
-    return completion_id, response.choices[0].message.content
+    return slug, completion_id, response.choices[0].message.content
 
 
 web_app = FastAPI()
@@ -158,7 +165,9 @@ async def news(
     for article in articles:
         content = scrape_article(article["url"])
         if content:
-            completion_id, summary = summarize_article(content, autofeedback, sources)
+            slug, completion_id, summary = summarize_article(
+                content, autofeedback, sources
+            )
 
         news_with_summaries.append(
             {
@@ -168,6 +177,7 @@ async def news(
                 "url": article["url"],
                 "image": article["urlToImage"],
                 "completion_id": completion_id,
+                "slug": slug,
             }
         )
 
