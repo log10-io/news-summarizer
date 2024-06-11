@@ -2,14 +2,10 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Switch, Text, Button, Select, SelectItem } from "@tremor/react";
-import { RiRestartFill, RiRestartLine } from "@remixicon/react";
+import { RiRestartLine } from "@remixicon/react";
 import { useInterval } from "usehooks-ts";
-
-// TODO: Make it easy to report summary quality.
-
-function classNames(...classes: any[]) {
-  return classes.filter(Boolean).join(" ");
-}
+import Image from "next/image";
+import Link from "next/link";
 
 function Comment({ feedback, completion_id }: any) {
   return (
@@ -21,15 +17,15 @@ function Comment({ feedback, completion_id }: any) {
               AutoFeedback
             </p>
           </div>
-          <div className="flex-1"></div>
+          <div className="flex-1" />
           <div className="mr-2">
-            <a
+            <Link
               target="_blank"
               href={`https://log10.io/app/news-summarizer-demo/feedback/feedback?completion_id=${completion_id}&task_id=610c8e40-e2a8-4b9e-9653-a50af719a6d7&wide=false`}
               className="text-xs text-gray-400 font-bold"
             >
               See autofeedback
-            </a>
+            </Link>
           </div>
         </div>
         <label htmlFor="description" className="sr-only">
@@ -64,9 +60,7 @@ function Comment({ feedback, completion_id }: any) {
           <div className="flex-shrink-0">
             <div className="relative">
               <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span
-                  className={classNames("hidden truncate sm:ml-2 sm:block")}
-                >
+                <span className={"hidden truncate sm:ml-2 sm:block"}>
                   {Math.floor(
                     ((feedback?.jsonValues?.Accuracy || 0) / 7) * 100
                   )}{" "}
@@ -78,9 +72,7 @@ function Comment({ feedback, completion_id }: any) {
           <div className="flex-shrink-0">
             <div className="relative">
               <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span
-                  className={classNames("hidden truncate sm:ml-2 sm:block")}
-                >
+                <span className={"hidden truncate sm:ml-2 sm:block"}>
                   {Math.floor(
                     ((feedback?.jsonValues?.Coherence || 0) / 7) * 100
                   )}{" "}
@@ -92,9 +84,7 @@ function Comment({ feedback, completion_id }: any) {
           <div className="flex-shrink-0">
             <div className="relative">
               <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span
-                  className={classNames("hidden truncate sm:ml-2 sm:block")}
-                >
+                <span className={"hidden truncate sm:ml-2 sm:block"}>
                   {Math.floor(
                     ((feedback?.jsonValues?.Coverage || 0) / 7) * 100
                   )}{" "}
@@ -106,9 +96,7 @@ function Comment({ feedback, completion_id }: any) {
           <div className="flex-shrink-0">
             <div className="relative">
               <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span
-                  className={classNames("hidden truncate sm:ml-2 sm:block")}
-                >
+                <span className={"hidden truncate sm:ml-2 sm:block"}>
                   {Math.floor(((feedback?.jsonValues?.Overall || 0) / 7) * 100)}{" "}
                   % overall
                 </span>
@@ -122,9 +110,7 @@ function Comment({ feedback, completion_id }: any) {
 }
 
 const Post = ({ post, autofeedback }: any) => {
-  // Poll for autofeedback at
-  // https://log10-io--news-summarizer-fastapi-app-dev.modal.run/autofeedback?completion_id=completion_id
-
+  // Poll for autofeedback at 1s interval
   const [feedback, setFeedback] = useState<any>();
 
   useInterval(
@@ -155,7 +141,7 @@ const Post = ({ post, autofeedback }: any) => {
       id={`post-${post.completion_id}`}
     >
       <div className="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-        <img
+        <Image
           src={post.image}
           alt=""
           className="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover"
@@ -176,16 +162,16 @@ const Post = ({ post, autofeedback }: any) => {
         </div>
         <div className="group relative">
           <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
-            <a href={post.url}>{post.title}</a>
+            <Link href={post.url}>{post.title}</Link>
           </h3>
           {post?.completion_id && (
-            <a
+            <Link
               target="_blank"
               href={`https://log10.io/app/news-summarizer-demo/completions?id=${post?.completion_id}&wide=false`}
               className="mt-4 text-xs text-gray-400 font-bold"
             >
               See log
-            </a>
+            </Link>
           )}
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
           {autofeedback && feedback && (
@@ -217,24 +203,6 @@ const Post = ({ post, autofeedback }: any) => {
             </div>
           )}
         </div>
-        {/* <div className="mt-6 flex border-t border-gray-900/5 pt-6">
-    <div className="relative flex items-center gap-x-4">
-      <img
-        src={post.author.imageUrl}
-        alt=""
-        className="h-10 w-10 rounded-full bg-gray-50"
-      />
-      <div className="text-sm leading-6">
-        <p className="font-semibold text-gray-900">
-          <a href={post.author.href}>
-            <span className="absolute inset-0" />
-            {post.author.name}
-          </a>
-        </p>
-        <p className="text-gray-600">{post.author.role}</p>
-      </div>
-    </div>
-  </div> */}
       </div>
     </article>
   );

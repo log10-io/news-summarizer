@@ -1,5 +1,4 @@
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from modal import App, Image, asgi_app
@@ -23,7 +22,7 @@ import os
 article_cache = {}
 
 # Initialize the News API client
-newsapi = NewsApiClient(api_key="cc2f2407c4184ff8a9ac99ffc90f435b")
+newsapi = NewsApiClient(api_key=os.getenv("NEWS_TOKEN"))
 
 import requests
 
@@ -89,8 +88,6 @@ def summarize_article(content, autofeedback, sources):
 
     client = OpenAI()
 
-    print("Using tags: ", tags)
-
     with log10_session(tags=tags) as session:
         response = client.chat.completions.create(
             model="gpt-4o",
@@ -112,23 +109,6 @@ def summarize_article(content, autofeedback, sources):
     # Get the completion id.
 
     return completion_id, response.choices[0].message.content
-
-
-# # @app.route('/news', methods=['GET'])
-# # def get_news():
-# #     articles = fetch_news()
-# #     news_with_summaries = []
-# #     for article in articles:
-# #         content = scrape_article(article["url"])
-# #         if content:
-# #             summary = summarize_article(content)
-# #             news_with_summaries.append({
-# #                 "original": content,
-# #                 "summary": summary,
-# #                 "title": article["title"],
-# #                 "url": article["url"]
-# #             })
-# #     return jsonify(news_with_summaries)
 
 
 web_app = FastAPI()
