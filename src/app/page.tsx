@@ -7,8 +7,8 @@ import { useInterval } from "usehooks-ts";
 import Image from "next/image";
 import Link from "next/link";
 
-const modalEndpoint = process.env.MODAL_ENDPOINT;
-const modalSecret = process.env.MODAL_SECRET;
+const modalEndpoint = process.env.NEXT_PUBLIC_MODAL_ENDPOINT;
+const modalSecret = process.env.NEXT_PUBLIC_MODAL_SECRET;
 
 function Comment({ feedback, completion_id }: any) {
   return (
