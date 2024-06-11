@@ -4,7 +4,6 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Switch, Text, Button, Select, SelectItem } from "@tremor/react";
 import { RiRestartLine } from "@remixicon/react";
 import { useInterval } from "usehooks-ts";
-import Image from "next/image";
 import Link from "next/link";
 
 const modalEndpoint = process.env.NEXT_PUBLIC_MODAL_ENDPOINT;
@@ -149,7 +148,7 @@ const Post = ({ post, autofeedback }: any) => {
       id={`post-${post.completion_id}`}
     >
       <div className="relative aspect-[16/9] sm:aspect-[2/1] lg:aspect-square lg:w-64 lg:shrink-0">
-        <Image
+        <img
           src={post.image}
           alt=""
           className="absolute inset-0 h-full w-full rounded-2xl bg-gray-50 object-cover"
