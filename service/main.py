@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends, HTTPException, Header
 from fastapi.middleware.cors import CORSMiddleware
 
 from modal import App, Image, asgi_app
@@ -24,7 +24,14 @@ article_cache = {}
 # Initialize the News API client
 newsapi = NewsApiClient(api_key=os.getenv("NEWS_TOKEN"))
 
+modal_secret = os.getenv("MODAL_SECRET")
+
 import requests
+
+
+def verify_secret(x_modal_secret: str = Header(...)):
+    if x_modal_secret != modal_secret:
+        raise HTTPException(status_code=403, detail="Invalid or missing secret header")
 
 
 def fetch_autofeedback(id):
@@ -128,7 +135,7 @@ def fastapi_app():
 
 
 @web_app.get("/autofeedback")
-async def autofeedback(completion_id=None):
+async def autofeedback(completion_id=None, secret: str = Depends(verify_secret)):
     if not completion_id:
         return {"error": "Please provide a completion ID."}
 
@@ -136,7 +143,13 @@ async def autofeedback(completion_id=None):
 
 
 @web_app.get("/news")
-async def news(autofeedback: bool = False, sources="cnn", start=0, end=10):
+async def news(
+    autofeedback: bool = False,
+    sources="cnn",
+    start=0,
+    end=10,
+    secret: str = Depends(verify_secret),
+):
     articles = fetch_news(sources)
     news_with_summaries = []
 

@@ -7,6 +7,9 @@ import { useInterval } from "usehooks-ts";
 import Image from "next/image";
 import Link from "next/link";
 
+const modalEndpoint = process.env.MODAL_ENDPOINT;
+const modalSecret = process.env.MODAL_SECRET;
+
 function Comment({ feedback, completion_id }: any) {
   return (
     <form action="#" className="relative">
@@ -116,7 +119,12 @@ const Post = ({ post, autofeedback }: any) => {
   useInterval(
     () => {
       fetch(
-        `https://log10-io--news-summarizer-fastapi-app.modal.run/autofeedback?completion_id=${post.completion_id}`
+        `${modalEndpoint}/autofeedback?completion_id=${post.completion_id}`,
+        {
+          headers: {
+            "x-modal-secret": modalSecret || "",
+          },
+        }
       )
         .then((response) => response.json())
         .then((data) => {
@@ -149,17 +157,6 @@ const Post = ({ post, autofeedback }: any) => {
         <div className="absolute inset-0 rounded-2xl ring-1 ring-inset ring-gray-900/10" />
       </div>
       <div>
-        <div className="flex items-center gap-x-4 text-xs">
-          {/* <time dateTime={post.datetime} className="text-gray-500">
-      {post.date}
-    </time> */}
-          {/* <a
-      href={post.category.href}
-      className="relative z-10 rounded-full bg-gray-50 px-3 py-1.5 font-medium text-gray-600 hover:bg-gray-100"
-    >
-      {post.category.title}
-    </a> */}
-        </div>
         <div className="group relative">
           <h3 className="mt-3 text-lg font-semibold leading-6 text-gray-900 group-hover:text-gray-600">
             <Link href={post.url}>{post.title}</Link>
@@ -226,10 +223,15 @@ export default function Example() {
 
       for (let i = 0; i < 10; i++) {
         fetch(
-          `https://log10-io--news-summarizer-fastapi-app.modal.run/news?sources=${sources}&autofeedback=${
+          `${modalEndpoint}/news?sources=${sources}&autofeedback=${
             useAutofeedback || false
           }&reset_cache=true&start=${i}&end=${i + 1}`,
-          { signal: abort.current.signal }
+          {
+            signal: abort.current.signal,
+            headers: {
+              "x-modal-secret": modalSecret || "",
+            },
+          }
         )
           .then((response) => response.json())
           .then((data) => data)

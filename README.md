@@ -53,23 +53,44 @@ This should redirect you to the feedback screen in Log10. To get your credential
 
 ![Keys](./docs/images/keys.png)
 
+These will go in the `LOG10_URL`, `LOG10_ORG_ID` and `LOG10_TOKEN` environment variables.
+
 ### OpenAI
 
 Sign up with OpenAI, if you don't already have an account [here](https://platform.openai.com/signup) or [login](https://platform.openai.com/).
 
-Go to the [API keys page](https://platform.openai.com/api-keys) and create a key and save it for later.
-
+Go to the [API keys page](https://platform.openai.com/api-keys) and create a key and save it for later. This will go in the `OPENAI_API_KEY` environment variable.
 
 
 ### NewsAPI
 
-Create a NewAPI key [here](https://newsapi.org/register) ans save it for later.
+Create a NewAPI key [here](https://newsapi.org/register) ans save it for later. This will go in the `NEWS_TOKEN` environment variable.
 
 ### Modal
 
-Start by creating an account in modal [here](https://modal.com/signup).
+Start by creating a secret that ensures that only your frontend can access your modal endpoint:
+
+```
+$ uuidgen
+```
+
+Save this value, or make up your own secret. This will go in the `MODAL_SECRET` environment variable.
+
+Then create an account in modal [here](https://modal.com/signup).
 
 #### Secrets
+
+At this point, you should have the values for the following secrets:
+
+| Name | Description |
+| ---- | ----------- |
+| MODAL_SECRET | Secret key that protects your modal endpoint |
+| LOG10_URL | API URL for Log10. **NOTE** Do not include trailing slash |
+| LOG10_ORG_ID | Your Organization ID in Log10. This is an UUID and not the slug i.e. short name |
+| LOG10_TOKEN | Your API token to log10 |
+| NEWS_TOKEN | Token for newsapi.org account |
+| OPENAI_API_KEY | Your openai key |
+
 
 When you have logged in, click the secrets tab and click "Create new secret"
 
@@ -119,7 +140,7 @@ Log in with your github credentials [here](https://vercel.com/login), and click 
 
 ![Git repo selection](./docs/images/git-select.png)
 
-Now set the modal endpoint that you noted above in the environment variable list, and click deploy.
+Now set the modal endpoint and secret that you noted above in the environment variable list, and click deploy.
 
 ![Configure environment](./docs/images/modal-endpoint.png)
 
