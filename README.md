@@ -104,7 +104,7 @@ And create secrets for log10, openai and the newsapi:
 
 ![Secrets](./docs/images/secrets.png)
 
-Then, name the secret "news-secret":
+Then, name the secret "news-secrets":
 
 ![news-secret](./docs/images/news-secret.png)
 
