@@ -30,17 +30,21 @@ function Comment({ slug, feedback, completion_id }: any) {
             </Link>
           </div>
         </div>
-        <label htmlFor="description" className="sr-only">
-          Description
-        </label>
-        <textarea
-          rows={2}
-          name="description"
-          id="description"
-          className="block w-full resize-none border-0 py-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-          placeholder="Write a description..."
-          defaultValue={feedback?.comment}
-        />
+        {feedback.task.name.includes("autofeedback") && (
+          <>
+            <label htmlFor="description" className="sr-only">
+              Description
+            </label>
+            <textarea
+              rows={2}
+              name="description"
+              id="description"
+              className="block w-full resize-none border-0 py-0 text-gray-900 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
+              placeholder="Write a description..."
+              defaultValue={feedback?.comment}
+            />
+          </>
+        )}
 
         {/* Spacer element to match the height of the toolbar */}
         <div aria-hidden="true">
@@ -59,52 +63,75 @@ function Comment({ slug, feedback, completion_id }: any) {
       <div className="absolute inset-x-px bottom-0">
         {/* Actions: These are just examples to demonstrate the concept, replace/wire these up however makes sense for your project. */}
         <div className="flex flex-nowrap justify-end space-x-2 px-2 py-2 sm:px-3">
-          <div className="flex-shrink-0">
-            <div className="relative">
-              <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span className={"hidden truncate sm:ml-2 sm:block"}>
-                  {Math.floor(
-                    ((feedback?.jsonValues?.Accuracy || 0) / 7) * 100
-                  )}{" "}
-                  % accuracy
-                </span>
+          {feedback.task.name.includes("autofeedback") && (
+            <>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
+                    <span className={"hidden truncate sm:ml-2 sm:block"}>
+                      {Math.floor(
+                        ((feedback?.jsonValues?.Accuracy || 0) / 7) * 100
+                      )}{" "}
+                      % accuracy
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <div className="relative">
-              <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span className={"hidden truncate sm:ml-2 sm:block"}>
-                  {Math.floor(
-                    ((feedback?.jsonValues?.Coherence || 0) / 7) * 100
-                  )}{" "}
-                  % coherence
-                </span>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
+                    <span className={"hidden truncate sm:ml-2 sm:block"}>
+                      {Math.floor(
+                        ((feedback?.jsonValues?.Coherence || 0) / 7) * 100
+                      )}{" "}
+                      % coherence
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <div className="relative">
-              <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span className={"hidden truncate sm:ml-2 sm:block"}>
-                  {Math.floor(
-                    ((feedback?.jsonValues?.Coverage || 0) / 7) * 100
-                  )}{" "}
-                  % coverage
-                </span>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
+                    <span className={"hidden truncate sm:ml-2 sm:block"}>
+                      {Math.floor(
+                        ((feedback?.jsonValues?.Coverage || 0) / 7) * 100
+                      )}{" "}
+                      % coverage
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-          <div className="flex-shrink-0">
-            <div className="relative">
-              <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
-                <span className={"hidden truncate sm:ml-2 sm:block"}>
-                  {Math.floor(((feedback?.jsonValues?.Overall || 0) / 7) * 100)}{" "}
-                  % overall
-                </span>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
+                    <span className={"hidden truncate sm:ml-2 sm:block"}>
+                      {Math.floor(
+                        ((feedback?.jsonValues?.Overall || 0) / 7) * 100
+                      )}{" "}
+                      % overall
+                    </span>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
+            </>
+          )}
+
+          {feedback.task.name.includes("high precision") && (
+            <>
+              <div className="flex-shrink-0">
+                <div className="relative">
+                  <div className="relative inline-flex items-center whitespace-nowrap rounded-full bg-gray-50 px-2 py-2 text-sm font-medium text-gray-500 hover:bg-gray-100 sm:px-3">
+                    <span className={"hidden truncate sm:ml-2 sm:block"}>
+                      {Math.floor(
+                        ((feedback?.jsonValues?.coverage || 0) / 7) * 100
+                      )}{" "}
+                      % coverage
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </form>
@@ -138,7 +165,7 @@ const Post = ({ post, autofeedback }: any) => {
           }
         });
     },
-    !feedback && autofeedback && post.completion_id ? 1000 : null
+    !feedback && autofeedback != "off" && post.completion_id ? 1000 : null
   );
 
   return (
@@ -170,14 +197,14 @@ const Post = ({ post, autofeedback }: any) => {
             </Link>
           )}
           <p className="mt-5 text-sm leading-6 text-gray-600">{post.summary}</p>
-          {autofeedback && feedback && (
+          {autofeedback !== "off" && feedback && (
             <Comment
               slug={post?.slug}
               feedback={feedback}
               completion_id={post?.completion_id}
             />
           )}
-          {autofeedback && !feedback && (
+          {autofeedback !== "off" && !feedback && (
             <div
               role="status"
               className="flex flex-col justify-center items-center mt-4"
@@ -211,11 +238,11 @@ const Post = ({ post, autofeedback }: any) => {
 export default function News() {
   const [sources, setSources] = useState("cnn");
   const [posts, setPosts] = useState<any>([]);
-  const [autofeedback, setAutofeedback] = useState(false);
+  const [autofeedback, setAutofeedback] = useState("off");
   const abort = useRef(new AbortController());
 
   const fetchNews = useCallback(
-    async (useAutofeedback: boolean, sources: string) => {
+    async (useAutofeedback: string, sources: string) => {
       setPosts([]);
 
       if (abort.current) {
@@ -226,9 +253,9 @@ export default function News() {
 
       for (let i = 0; i < 10; i++) {
         fetch(
-          `${modalEndpoint}/news?sources=${sources}&autofeedback=${
-            useAutofeedback || false
-          }&reset_cache=true&start=${i}&end=${i + 1}`,
+          `${modalEndpoint}/news?sources=${sources}&autofeedback=${useAutofeedback}&reset_cache=true&start=${i}&end=${
+            i + 1
+          }`,
           {
             signal: abort.current.signal,
             headers: {
@@ -239,6 +266,11 @@ export default function News() {
           .then((response) => response.json())
           .then((data) => data)
           .then((data) => {
+            if (data?.detail) {
+              console.error(data.detail);
+              return;
+            }
+
             setPosts((posts: any) => [
               ...posts,
               ...data.filter(
@@ -278,13 +310,17 @@ export default function News() {
                 Refresh
               </Button>
               <div>
-                <Text>Autofeedback {autofeedback ? "on" : "off"}</Text>
-                <Switch
-                  checked={autofeedback}
-                  onChange={(e) => {
+                <Select
+                  className="w-52"
+                  value={autofeedback}
+                  onValueChange={(e) => {
                     setAutofeedback(e);
                   }}
-                />
+                >
+                  <SelectItem value="off">Autofeedback off</SelectItem>
+                  <SelectItem value="icl">Autofeedback (ICL)</SelectItem>
+                  <SelectItem value="lsr">Autofeedback (LSR)</SelectItem>
+                </Select>
               </div>
               <div>
                 <Select

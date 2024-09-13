@@ -92,8 +92,10 @@ def fetch_news(sources):
 def summarize_article(content, autofeedback, sources):
     # Initialize the OpenAI client
     tags = ["news"]
-    if autofeedback:
+    if autofeedback == "icl":
         tags.append("log10/summary-grading")
+    if autofeedback == "lsr":
+        tags.append("log10/coverage-scoring")
 
     if sources:
         tags.append(f"source/{sources}")
@@ -151,7 +153,7 @@ async def autofeedback(completion_id=None, secret: str = Depends(verify_secret))
 
 @web_app.get("/news")
 async def news(
-    autofeedback: bool = False,
+    autofeedback="off",
     sources="cnn",
     start=0,
     end=10,
