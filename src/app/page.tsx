@@ -318,8 +318,8 @@ export default function News() {
                   }}
                 >
                   <SelectItem value="off">Autofeedback off</SelectItem>
-                  <SelectItem value="icl">Autofeedback (ICL)</SelectItem>
-                  <SelectItem value="lsr">Autofeedback (LSR)</SelectItem>
+                  <SelectItem value="icl">Autofeedback on</SelectItem>
+                  {/* <SelectItem value="lsr">Autofeedback (LSR)</SelectItem> */}
                 </Select>
               </div>
               <div>
