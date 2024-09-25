@@ -104,7 +104,7 @@ def summarize_article(content, autofeedback, sources):
 
     with log10_session(tags=tags) as session:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are an expert summarizer."},
                 {
