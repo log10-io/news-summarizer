@@ -7,6 +7,7 @@ import { useInterval } from "usehooks-ts";
 import Link from "next/link";
 
 import { sha512 } from "sha512-crypt-ts";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 
 const modalEndpoint = process.env.NEXT_PUBLIC_MODAL_ENDPOINT;
 const modalSecret = process.env.NEXT_PUBLIC_MODAL_SECRET;
