@@ -1,10 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, Suspense } from "react";
 import { Switch, Text, Button, Select, SelectItem } from "@tremor/react";
 import { RiRestartLine } from "@remixicon/react";
 import { useInterval } from "usehooks-ts";
 import Link from "next/link";
+
+import { sha512 } from "sha512-crypt-ts";
+import { XMarkIcon } from "@heroicons/react/20/solid";
 
 const modalEndpoint = process.env.NEXT_PUBLIC_MODAL_ENDPOINT;
 const modalSecret = process.env.NEXT_PUBLIC_MODAL_SECRET;
@@ -235,7 +238,7 @@ const Post = ({ post, autofeedback }: any) => {
   );
 };
 
-export default function News() {
+function News() {
   const [sources, setSources] = useState("cnn");
   const [posts, setPosts] = useState<any>([]);
   const [autofeedback, setAutofeedback] = useState("off");
@@ -380,5 +383,100 @@ export default function News() {
         </div>
       </div>
     </div>
+  );
+}
+
+function Signin({ authenticated, setAuthenticated }: any) {
+  const [password, setPassword] = useState<string>("");
+  const [error, setError] = useState<string>("");
+
+  return (
+    <>
+      {/*
+        This example requires updating your template:
+
+        ```
+        <html class="h-full bg-white">
+        <body class="h-full">
+        ```
+      */}
+      <div className="flex min-h-full flex-1 flex-col justify-center px-6 py-12 lg:px-8">
+        <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
+          {error && (
+            <div className="rounded-md bg-red-50 p-4">
+              <div className="flex">
+                <div className="flex-shrink-0">
+                  <XMarkIcon
+                    className="h-5 w-5 text-red-400"
+                    aria-hidden="true"
+                  />
+                </div>
+                <div className="ml-3">
+                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                </div>
+              </div>
+            </div>
+          )}
+          <div>
+            <div className="flex items-center justify-between">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium leading-6 text-gray-900"
+              >
+                Password
+              </label>
+            </div>
+            <div className="mt-2">
+              <input
+                id="password"
+                name="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="current-password"
+                required
+                className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+              />
+            </div>
+          </div>
+
+          <div>
+            <button
+              className="mt-4 flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
+              onClick={() => {
+                const code =
+                  "$6$saltsalt$B2MKG3z.SsU9BYDPxIIihGD6R4JNP6nYVPzNF1uklDyNkaxM76sOlsD3U5giAR7k8xjWl.5lk2BTZTirSU8Ek0";
+                const hash = sha512.crypt(password, "saltsalt");
+                if (hash === code) {
+                  setAuthenticated(true);
+                } else {
+                  setError("Invalid password");
+                }
+              }}
+            >
+              Sign in
+            </button>
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}
+
+
+export default function _Home() {
+  const [authenticated, setAuthenticated] = useState<boolean>(false);
+
+  return (
+    <Suspense>
+      {authenticated ? (
+        <News />
+      ) : (
+        <Signin
+          authenticated={authenticated}
+          setAuthenticated={setAuthenticated}
+        />
+      )}
+    </Suspense>
   );
 }
